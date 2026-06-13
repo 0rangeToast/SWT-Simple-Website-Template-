@@ -282,12 +282,33 @@ body{
         padding: 16px 0;
     }
 
+    .banner-card{
+        border:1px solid #2a2a2a;
+    }
+
+    .card{
+        border:1px solid #2a2a2a;
+    }
+
+    .social{
+        border:1px solid #333;
+    }
+
+    .tabs{
+        border:1px solid #2a2a2a;
+    }
+
+    .content{
+        border:1px solid #2a2a2a;
+    }
+
     .container {
         grid-template-columns: 1fr; 
     }
     
     .song-pill {
         flex-wrap: nowrap; 
+        border:1px solid #2c2c2c;
         gap: 12px;
     }
     
@@ -296,22 +317,38 @@ body{
         flex-direction: row;
         white-space: nowrap;
     }
-}
+
+    .pagination {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 20px; 
+        margin-bottom: 10px;
+        padding: 0 10px;
+        width: 100%;
+    }
+
+    .page-btn {
+        flex: 1;
+        padding: 8px 0;
+        border:1px solid #333;
+    }
 
 @media (max-width: 430px) {
-    .song-pill {
-        flex-wrap: wrap; 
-        gap: 10px;
-    }
+        .song-pill {
+            flex-wrap: wrap; 
+            gap: 10px;
+        }
 
-    .song-buttons {
-        flex-direction: column;
-        margin-left: 0;
-        width: 100%;
-    }
+        .song-buttons {
+            flex-direction: column;
+            margin-left: 0;
+            width: 100%;
+        }
 
-    .song-buttons a {
-        justify-content: center;
-        width: 100%;
+        .song-buttons a {
+            justify-content: center;
+            width: 100%;
+        }
+        }
     }
-}
