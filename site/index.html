@@ -54,15 +54,43 @@
     <div class="content">
 
         <div class="panel active" id="info">
+            <div class="info-pages active" data-page="1">
             <h2>Who is Teto?</h2>
             <br>
             <p>
-                Kasane Teto (重音テト) is a Japanese character originally created as a troll "VOCALOID" for April Fools' Day in 2008. She was designed by Sen, and voiced by Oyamano Mayo/Yamanon. They're part of the current team maintaining her, TWINDRILL.
+            Kasane Teto (重音テト) is a Japanese character originally created as a troll "VOCALOID" for April Fools' Day in 2008. She was designed by Sen, and voiced by Oyamano Mayo/Yamanon. They're part of the current team maintaining her, TWINDRILL.
             </p>
             <br>
             <p>While originally only for use in UTAU, on her 15th anniversary in 2023, TWINDRILL announced the release of a Teto AI voicebank for Synthesizer V. As of this, her popularity has grown intensively, garnering multiple original songs that have reached millions of views.</p>
             <br>
             <p>She's officially recognized by Crypton Future Media and has appeared in various collaborations, such as Miku Symphony, Project VOLTAGE, and the Project Diva series. She has recieved a various amount of official merchandise such as Nendoroids, figures, plushies, etc.</p>
+            </div>
+
+            <div class="info-pages" data-page="2">
+                <h2>Fan Club History</h2>
+                <br>
+                <p>
+                The Kasane Teto Fan Club (KTFC for short), is an <a class="white-link" href="https://polytoria.com" target="_blank">Polytoria</a> guild that was created on the 13th of August 2025.
+                </p>
+                <br>
+                <p>
+                The KTFC didn’t get that many members until February 2026, where it began gaining members quite quickly. As of the 14th of June 2026, the guild is the fourth largest guild on Polytoria.
+                </p>
+                <br>
+                <p>
+                On January 18th, 2026 the KTFC discord server was opened to the public, it sits at 68 members (as of 14th of June, 2026)
+                </p>
+                <br>
+                <p>
+                On June 6th, 2026 the official KTFC website has been created, initially it looked like <a class="white-link" href="https://web.archive.org/web/20260607171703/https://tetodomination.com/" target="_blank">this</a>. Eventually 2 days later, the current version of the website has launched.
+                </p>
+                <br>
+                <p>
+                The KTFC got a lot of help from Alex and Puru that got it to where it is today.
+                <p>
+            </div>
+
+            <div class="pagination"></div>
         </div>
 
         <!-- general section -->
@@ -437,11 +465,12 @@
             const panels = document.querySelectorAll(".panel");
             const paginationState = {
                 songs: { currentPage: 1, totalPages: 6 },
-                images: { currentPage: 1, totalPages: 2 }
+                images: { currentPage: 1, totalPages: 2 },
+                info: { currentPage: 1, totalPages: 2 }
             };
 
             const loadActivePageImages = (panel) => {
-                const activeSubPage = panel.querySelector('.song-pages.active, .image-pages.active') || panel;
+                const activeSubPage = panel.querySelector('.song-pages.active, .image-pages.active, .info-pages.active') || panel;
                 const images = activeSubPage.querySelectorAll('img[data-src]');
                 images.forEach(img => {
                     if (img.getAttribute('src') !== img.getAttribute('data-src')) {
@@ -520,6 +549,7 @@
 
             renderPagination('songs', '.song-pages');
             renderPagination('images', '.image-pages');
+            renderPagination('info', '.info-pages');
             loadActivePageImages(document.querySelector('.panel.active'));
         </script>
 

@@ -16,6 +16,9 @@ body{
     min-height:100vh;
 }
 
+.info-pages { display: none; }
+.info-pages.active { display: block; }
+
 .song-pages, .image-pages{display:none;}
 .song-pages.active, .image-pages.active{display:block;}
 
