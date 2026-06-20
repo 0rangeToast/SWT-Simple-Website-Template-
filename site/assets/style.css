@@ -273,11 +273,9 @@ body{
     border-radius:0;
 }
 
-.yt{ background:#ffffff; color:#111; }
-.sp{ background:#ffffff; color:#111; }
+.click-button{ background:#ffffff; color:#111; }
 
-.yt:hover{ background:#eaeaea; }
-.sp:hover{ background:#eaeaea; }
+.click-button:hover{ background:#eaeaea; }
 
 @media (max-width: 820px) {
     body {
