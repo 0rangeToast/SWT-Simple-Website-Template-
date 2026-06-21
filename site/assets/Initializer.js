@@ -2,30 +2,33 @@ const ConfigFile = await fetch("/assets/Config.json")
     .then(r => r.json());
 const SongsFile = await fetch("/assets/Songs.json")
     .then(r => r.json());
+const ImagesFile = await fetch("/assets/Images.json")
+    .then(r => r.json());
 
-var CurrentSongPage = 0;
+var CurrentPageNumber = 0;
 var SongsDiv = document.getElementById("songs")
+var ImagesDiv = document.getElementById("images")
 var CurrentPageDiv = null;
 var CurrentInnerPageDiv = null;
-var CurrentSongPillDiv = null;
 
+//initialize songs page
 SongsFile.Songs.forEach((song, index) => {
     if (index % ConfigFile.SongsPerPage === 0) {
-        CurrentSongPage++;
+        CurrentPageNumber++;
         CurrentPageDiv = document.createElement("div")
         CurrentPageDiv.classList.add("song-pages");
-        CurrentPageDiv.dataset.page = CurrentSongPage;
-        if (CurrentSongPage == 1) CurrentPageDiv.classList.add("active")
+        CurrentPageDiv.dataset.page = CurrentPageNumber;
+        if (CurrentPageNumber == 1) CurrentPageDiv.classList.add("active")
         SongsDiv.append(CurrentPageDiv)
         CurrentInnerPageDiv = document.createElement("div")
         CurrentInnerPageDiv.classList.add("song-list");
         CurrentPageDiv.append(CurrentInnerPageDiv);
     }
-    CurrentSongPillDiv = document.createElement("div");
+    var CurrentSongPillDiv = document.createElement("div");
     CurrentSongPillDiv.classList.add("song-pill")
     CurrentInnerPageDiv.append(CurrentSongPillDiv);
     var image = document.createElement("img");
-    image.alt = `{song.Name} cover`
+    image.alt = `${song.Name} cover`
     image.dataset.src = song.Icon;
     CurrentSongPillDiv.append(image)
     var songdetails = document.createElement("div");
@@ -89,5 +92,35 @@ SongsFile.Songs.forEach((song, index) => {
 var pagination = document.createElement("div")
 pagination.classList.add("pagination")
 SongsDiv.append(pagination)
+paginationState.songs.totalPages = CurrentPageNumber;
 renderPagination('songs', '.song-pages');
+loadActivePageImages(document.querySelector('.panel.active'));
+CurrentPageNumber = 0;
+// initialize images page
+ImagesFile.Images.forEach((image, index) => {
+    if (index % ConfigFile.ImagesPerPage === 0) {
+        CurrentPageNumber++;
+        CurrentPageDiv = document.createElement("div")
+        CurrentPageDiv.classList.add("image-pages");
+        CurrentPageDiv.dataset.page = CurrentPageNumber;
+        if (CurrentPageNumber == 1) CurrentPageDiv.classList.add("active")
+        ImagesDiv.append(CurrentPageDiv)
+        CurrentInnerPageDiv = document.createElement("div")
+        CurrentInnerPageDiv.classList.add("image-grid");
+        CurrentPageDiv.append(CurrentInnerPageDiv);
+    }
+    var ImageCard = document.createElement("div");
+    ImageCard.classList.add("image-card")
+    var Image = document.createElement("img");
+    Image.dataset.src = image.Path;
+    Image.alt = image.Description;
+    ImageCard.append(Image);
+    CurrentInnerPageDiv.append(ImageCard)
+
+})
+pagination = document.createElement("div")
+pagination.classList.add("pagination")
+ImagesDiv.append(pagination)
+paginationState.images.totalPages = CurrentPageNumber;
+renderPagination('images', '.image-pages');
 loadActivePageImages(document.querySelector('.panel.active'));
