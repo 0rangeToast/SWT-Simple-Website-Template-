@@ -111,12 +111,10 @@ ImagesFile.Images.forEach((image, index) => {
     }
     var ImageCard = document.createElement("div");
     ImageCard.classList.add("image-card")
-    var InnerDiv = document.createElement("div");
     var Image = document.createElement("img");
     Image.dataset.src = image.Path;
     Image.alt = image.Description;
-    InnerDiv.append(Image);
-    ImageCard.append(InnerDiv);
+    ImageCard.append(Image);
     CurrentInnerPageDiv.append(ImageCard)
 
 })
