@@ -83,12 +83,6 @@ body{
     object-fit:cover;
 }
 
-.social{
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-
 .social img{
     width:16px;
     height:16px;
@@ -130,6 +124,9 @@ body{
 }
 
 .social{
+    display:flex;
+    align-items:center;
+    gap:8px;
     background:var(--bg);
     border:2px solid #333;
     border-radius:10px;
