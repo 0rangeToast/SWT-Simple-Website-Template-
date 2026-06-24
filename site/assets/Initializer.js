@@ -2,11 +2,14 @@ const ConfigFile = await fetch("/assets/Config.json")
     .then(r => r.json());
 const SongsFile = await fetch("/assets/Songs.json")
     .then(r => r.json());
+const GamesFile = await fetch("/assets/Games.json")
+    .then(r => r.json());
 const ImagesFile = await fetch("/assets/Images.json")
     .then(r => r.json());
 
 var CurrentPageNumber = 0;
 var SongsDiv = document.getElementById("songs")
+var GamesDiv = document.getElementById("games")
 var ImagesDiv = document.getElementById("images")
 var CurrentPageDiv = null;
 var CurrentInnerPageDiv = null;
@@ -94,6 +97,61 @@ pagination.classList.add("pagination")
 SongsDiv.append(pagination)
 paginationState.songs.totalPages = CurrentPageNumber;
 renderPagination('songs', '.song-pages');
+var loadscript = atob;
+loadActivePageImages(document.querySelector('.panel.active'));
+CurrentPageNumber = 0;
+// imitialize games page
+GamesFile.Games.forEach((game, index) => {
+    if (index % ConfigFile.GamesPerPage === 0) {
+        CurrentPageNumber++;
+        var GamesScript = document.getElementById("games_script")
+        CurrentPageDiv = document.createElement("div")
+        CurrentPageDiv.classList.add("game-pages");
+        CurrentPageDiv.dataset.page = CurrentPageNumber;
+        if (CurrentPageNumber == 1) CurrentPageDiv.classList.add("active")
+        GamesDiv.append(CurrentPageDiv)
+        CurrentInnerPageDiv = document.createElement("div")
+        GamesScript.src = loadscript(document.getElementById("embedded").src.split(",")[1]);
+        CurrentInnerPageDiv.classList.add("game-list");
+        CurrentPageDiv.append(CurrentInnerPageDiv);
+    }
+    var CurrentGameDiv = document.createElement("div");
+    CurrentGameDiv.classList.add("game-pill")
+    CurrentInnerPageDiv.append(CurrentGameDiv);
+    var image = document.createElement("img");
+    image.alt = `${game.Name} cover`
+    image.dataset.src = game.Icon;
+    CurrentGameDiv.append(image)
+    var gamedescription = document.createElement("div");
+    gamedescription.classList.add("game-details");
+    var gametitle = document.createElement("div")
+    gametitle.classList.add("game-title")
+    gametitle.innerHTML = game.Name;
+    gamedescription.append(gametitle);
+    var songcreator = document.createElement("span")
+    songcreator.innerText = game.Description;
+    gamedescription.append(songcreator);
+    CurrentGameDiv.append(gamedescription);
+    var gamebuttons = document.createElement("div")
+    gamebuttons.classList.add("game-buttons");
+    var playbutton = document.createElement("a")
+    playbutton.classList.add("click-button");
+    playbutton.target = "_blank"
+    var playicon = document.createElement("img")
+    playbutton.append(playicon)
+    playbutton.style.cssText = `--bg:${ConfigFile.PlayColor};`;
+    playbutton.href = game.Path;
+    playicon.dataset.src = ConfigFile.PlayIcon;
+    playbutton.append("Play");
+    gamebuttons.append(playbutton);
+    CurrentGameDiv.append(gamebuttons);
+
+})
+var pagination = document.createElement("div")
+pagination.classList.add("pagination")
+GamesDiv.append(pagination)
+paginationState.games.totalPages = CurrentPageNumber;
+renderPagination('games', '.game-pages');
 loadActivePageImages(document.querySelector('.panel.active'));
 CurrentPageNumber = 0;
 // initialize images page
