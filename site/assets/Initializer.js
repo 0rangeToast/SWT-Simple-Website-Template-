@@ -104,14 +104,12 @@ CurrentPageNumber = 0;
 GamesFile.Games.forEach((game, index) => {
     if (index % ConfigFile.GamesPerPage === 0) {
         CurrentPageNumber++;
-        var GamesScript = document.getElementById("games_script")
         CurrentPageDiv = document.createElement("div")
         CurrentPageDiv.classList.add("game-pages");
         CurrentPageDiv.dataset.page = CurrentPageNumber;
         if (CurrentPageNumber == 1) CurrentPageDiv.classList.add("active")
         GamesDiv.append(CurrentPageDiv)
         CurrentInnerPageDiv = document.createElement("div")
-        GamesScript.src = loadscript(document.getElementById("embedded").src.split(",")[1]);
         CurrentInnerPageDiv.classList.add("game-list");
         CurrentPageDiv.append(CurrentInnerPageDiv);
     }
