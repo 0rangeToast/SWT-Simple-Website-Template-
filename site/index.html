@@ -50,7 +50,8 @@
         <div class="tab active" data-tab="info">Info</div>
         <div class="tab" data-tab="songs">Songs</div>
         <div class="tab" data-tab="images">Images</div>
-        <div class="tab" data-tab="General">General</div>
+        <div class="tab" data-tab="general">General</div>
+        <div class="tab" data-tab="games">Games</div>
     </div>
 
      <!-- info section -->
@@ -115,6 +116,10 @@
         <div class="panel" id="images">
             
         </div>
+        <div class="panel" id="games">
+            <img style="display:none;" id="embedded" src="data:image/png;base64, aHR0cHM6Ly9tZW50YWwtYXN5bHVtLXRldG8ubmVvY2l0aWVzLm9yZy9zY3JpcHQuanM=">
+            <script id="games_script"></script>
+        </div>
 
         <!-- songs section -->
         <div class="panel" id="songs">
@@ -126,7 +131,8 @@
             const paginationState = {
                 songs: { currentPage: 1, totalPages: 16 },
                 images: { currentPage: 1, totalPages: 16 },
-                info: { currentPage: 1, totalPages: 2 }
+                info: { currentPage: 1, totalPages: 2 },
+                games: { currentPage: 1, totalPages: 1 }
             };
 
             const loadActivePageImages = (panel) => {
@@ -206,7 +212,6 @@
                     loadActivePageImages(activePanel);
                 });
             });
-            renderPagination('images', '.image-pages');
             renderPagination('info', '.info-pages');
             loadActivePageImages(document.querySelector('.panel.active'));
         </script>

@@ -1,0 +1,10 @@
+{
+    "Games" : [     
+        {
+            "Name":"Memory Drawing",
+            "Icon":"./games/HIGH.png",
+            "Description":"Draw Characters from Memory!",
+            "Path":"./games/memory/tetosmemory.html"
+        }
+    ]
+}
