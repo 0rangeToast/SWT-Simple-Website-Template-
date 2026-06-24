@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <noscript>JavaScript is required for this website.</noscript>
+    <title>Higher or Lower: Fatass Speed Edition</title>
+        <meta name="description" content="Can you guess the most populer Kasane Teto song?">
+        <meta property="og:title" content="Higher or Lower: Fatass Speed Edition" />
+        <meta property="og:description" content="A fast Teto song guessing game" />
+        <meta property="og:image" content="https://tetodomination.com/games/HIGH.png" /> 
+        <meta property="og:url" content="https://tetodomination.com/games" />
+        <meta content="#D6475E" name="theme-color" /> 
+    <link rel="icon" type="image/png" href="https://kasanete.to/img/favicon.png" />
+    <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+
+<div class="score-board">
+    <div>High Score: <span id="highScoreDisplay">0</span></div>
+    <div>Score: <span id="scoreDisplay">0</span></div>
+</div>
+
+<div class="game-container">
+    <div id="sideA" class="side left-side"></div>
+    <div class="or-circle" id="or-element">VS</div>
+    <div id="sideB" class="side right-side"></div>
+</div>
+
+<div id="gameOverScreen" class="game-over-screen">
+    <h1 class="game-over-title">YOU SCORED</h1>
+    
+    <div class="score-box">
+        <span id="finalScoreDisplay">0</span>
+    </div>
+    
+    <p id="gameOverQuote" class="game-over-quote">"Loading Quotes..."</p>
+    
+    <div class="game-over-buttons">
+        <button id="retryBtn">Retry</button>
+        <button id="menuBtn">Menu</button>
+    </div>
+</div>
+
+<script>
+let songs = [];
+let songA;
+let songB;
+let score = 0;
+let highScore = Number(localStorage.getItem("higherLowerSongsSpeedHighScore")) || 0;
+let locked = false;
+let winningSide = null; 
+let winningSideStreak = 0;  
+let lastWinningSide = null;
+let countdownTimer = null;
+
+function formatNumber(num) {
+    return Number(num).toLocaleString();
+}
+
+async function loadSongs() {
+    try {
+        const response = await fetch("https://tetodomination.com/assets/Songs.json");
+        const data = await response.json();
+        songs = data.Songs;
+        updateScoreboard();
+        startGame();
+    } catch(err) {
+        console.error(err);
+        document.body.innerHTML = `<h1 style="color:white;text-align:center;margin-top:100px;">Failed to load songs.json</h1>`;
+    }
+}
+
+function randomSong() {
+    return songs[Math.floor(Math.random() * songs.length)];
+}
+
+function generateNewSong(excludedSong) {
+    let newSong;
+    do {
+        newSong = randomSong();
+    } while (newSong.Name === excludedSong.Name);
+    return newSong;
+}
+
+function updateScoreboard() {
+    document.getElementById("scoreDisplay").textContent = score;
+    document.getElementById("highScoreDisplay").textContent = highScore;
+}
+
+function renderSide(sideId, song, showViews = false) {
+    const sideEl = document.getElementById(sideId);
+    if (!sideEl) return;
+    
+    sideEl.innerHTML = `
+        <div class="content">
+            <img class="song-image" src="${song.Icon}" alt="${song.Name}">
+            <div class="song-title">"${song.Name}"</div>
+            <div class="song-creator">by ${song.Creator}</div>
+            <div class="song-views ${showViews ? 'show' : ''}" id="views${sideId.slice(-1)}">
+                ${showViews ? formatNumber(song.views) + ' VIEWS' : '? VIEWS'}
+            </div>
+        </div>
+    `;
+}
+
+function startCountdown() {
+    clearInterval(countdownTimer);
+    let timeLeft = 10;
+    const orElement = document.getElementById("or-element");
+    orElement.textContent = timeLeft;
+
+    countdownTimer = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+            clearInterval(countdownTimer);
+            locked = true;
+
+            renderSide("sideA", songA, true);
+            renderSide("sideB", songB, true);
+
+            orElement.classList.add("wrong");
+            orElement.textContent = "✖";
+            setTimeout(triggerGameOverSequence, 1500);
+        } else {
+            orElement.textContent = timeLeft;
+        }
+    }, 1000);
+}
+
+function startGame() {
+    score = 0;
+    winningSide = null;
+    winningSideStreak = 0;   
+    lastWinningSide = null;
+    locked = false;
+
+    if (songs.length < 2) return;
+
+    songA = randomSong();
+    do {
+        songB = randomSong();
+    } while (songA.Name === songB.Name);
+
+    document.getElementById("or-element").textContent = "VS";
+    document.getElementById("or-element").className = "or-circle";
+    
+    document.getElementById("sideA").classList.remove("correct", "wrong", "fade-in", "fade-out");
+    document.getElementById("sideB").classList.remove("correct", "wrong", "fade-in", "fade-out");
+
+    renderSide("sideA", songA, false);
+    renderSide("sideB", songB, false);
+
+    document.getElementById("sideA").onclick = () => makeGuess("A");
+    document.getElementById("sideB").onclick = () => makeGuess("B");
+    
+    updateScoreboard();
+    startCountdown();
+}
+
+function makeGuess(guess) {
+    if (locked) return;
+    locked = true;
+    clearInterval(countdownTimer);
+
+    const sideA = document.getElementById("sideA");
+    const sideB = document.getElementById("sideB");
+    const orElement = document.getElementById("or-element");
+
+    const isA = guess === "A";
+    const chosenSong = isA ? songA : songB;
+    const otherSong = isA ? songB : songA;
+    const isCorrect = chosenSong.views >= otherSong.views;
+
+    renderSide("sideA", songA, true);
+    renderSide("sideB", songB, true);
+
+    sideA.classList.remove("correct", "wrong");
+    sideB.classList.remove("correct", "wrong");
+
+if (isCorrect) {
+        score++;
+        winningSide = guess;
+
+        if (guess === lastWinningSide) {
+            winningSideStreak++;
+        } else {
+            winningSideStreak = 1;
+            lastWinningSide = guess;
+        }
+        
+        if (isA) {
+            sideA.classList.add("correct");
+        } else {
+            sideB.classList.add("correct");
+        }
+        
+        orElement.classList.add("correct");
+        orElement.textContent = "✔";
+        updateScoreboard();
+        setTimeout(advanceRound, 1500);
+    } else {
+
+        if (isA) {
+            sideA.classList.add("wrong");
+        } else {
+            sideB.classList.add("wrong");
+        }
+        
+        orElement.classList.add("wrong");
+        orElement.textContent = "✖";
+        setTimeout(triggerGameOverSequence, 1500);
+    }
+}
+
+function advanceRound() {
+    const sideA = document.getElementById("sideA");
+    const sideB = document.getElementById("sideB");
+    const orElement = document.getElementById("or-element");
+
+    orElement.textContent = "VS";
+    orElement.className = "or-circle";
+
+    sideA.classList.remove("correct", "wrong");
+    sideB.classList.remove("wrong", "correct");
+
+    if (winningSideStreak >= 3) {
+        winningSideStreak = 0;
+        lastWinningSide = null;
+
+        sideA.classList.add("fade-out");
+        sideB.classList.add("fade-out");
+
+        setTimeout(() => {
+            songA = randomSong();
+            do {
+                songB = randomSong();
+            } while (songA.Name === songB.Name);
+
+            renderSide("sideA", songA, false);
+            renderSide("sideB", songB, false);
+
+            sideA.classList.remove("fade-out");
+            sideB.classList.remove("fade-out");
+            sideA.classList.add("fade-in");
+            sideB.classList.add("fade-in");
+
+            setTimeout(() => {
+                sideA.classList.remove("fade-in");
+                sideB.classList.remove("fade-in");
+                locked = false;
+                startCountdown();
+            }, 300);
+        }, 300);
+
+        return; 
+    }
+
+    if (winningSide === "A") {
+        sideB.classList.add("fade-out");
+        setTimeout(() => {
+            songB = generateNewSong(songA);
+            renderSide("sideB", songB, false);
+            sideB.classList.remove("fade-out");
+            sideB.classList.add("fade-in");
+            setTimeout(() => {
+                sideB.classList.remove("fade-in");
+                locked = false;
+                startCountdown();
+            }, 300);
+        }, 300);
+    } else {
+        sideA.classList.add("fade-out");
+        setTimeout(() => {
+            songA = generateNewSong(songB);
+            renderSide("sideA", songA, false);
+            sideA.classList.remove("fade-out");
+            sideA.classList.add("fade-in");
+            setTimeout(() => {
+                sideA.classList.remove("fade-in");
+                locked = false;
+                startCountdown();
+            }, 300);
+        }, 300);
+    }
+}
+
+
+function getGameOverQuote(score) {
+    if (score === 0) return "...Did you even try?";
+    if (score < 4) return "Not bad, but a real Teto fan knows more";
+    if (score < 15) return "You are a real fan!";
+    return "Teto world domination achieved!";
+}
+
+function triggerGameOverSequence() {
+    clearInterval(countdownTimer);
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem("higherLowerSongsSpeedHighScore", highScore);
+    }
+    updateScoreboard();
+
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    
+    document.getElementById("finalScoreDisplay").textContent = score;
+    document.getElementById("gameOverQuote").textContent = `"${getGameOverQuote(score)}"`;
+    
+    gameOverScreen.classList.add("show");
+}
+
+document.getElementById("retryBtn").addEventListener("click", () => {
+    document.getElementById("gameOverScreen").classList.remove("show");
+    startGame();
+});
+
+document.getElementById("menuBtn").addEventListener("click", () => {
+    window.location.href = "index.html"; 
+});
+
+loadSongs();
+
+loadSongs();
+</script>
+</body>
+</html>
