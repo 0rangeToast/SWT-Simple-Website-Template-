@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="https://kasanete.to/img/favicon.png" />
+    <title>Draw Stuff From Memory</title>
+    <style>
+        body {
+            background-color: #EEE6E6; 
+            font-family: Inter, "Segoe UI", sans-serif;
+            background-image: 
+            linear-gradient(to bottom, #e4a9b3 0%, #eee8e8 30%), 
+            url("./background.avif");
+            background-size: 100% auto;
+            background-repeat: no-repeat;
+            background-position: top center;
+            background-blend-mode: multiply;
+            overflow-x: hidden;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .main-title {
+            background: rgb(255, 255, 255);
+            width: 100%;
+            max-width: 850px; 
+            padding: 20px 10px;
+            text-align: center;
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: bold;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 6px solid transparent;
+            border-radius: 6px; 
+        }
+
+        .logo-section {
+            width: 100%;
+            max-width: 850px; 
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prompt-bar {
+            background: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-size: clamp(18px, 4vw, 25px);
+            margin-bottom: 10px;
+            border-radius: 6px; 
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            align-items: stretch; 
+        }
+
+        @media (max-width: 768px) {
+            .game-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .canvas-container {
+            background: white;
+            display: flex;
+            flex-direction: column;
+            border-radius: 6px; 
+            overflow: hidden; 
+            height: 100%;
+        }
+
+        .drawing-surface {
+            width: 100%;
+            aspect-ratio: 1 / 1; 
+            flex-grow: 1;
+            cursor: crosshair;
+            touch-action: none; 
+        }
+
+        .palette {
+            height: 60px; 
+            background: #D6939C;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            padding-left: 20px; 
+            border-top: 2px solid #d48e97;
+            flex-shrink: 0; 
+        }
+
+        .swatch {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 12px; 
+            border: 2px solid transparent;
+            outline: 1px solid rgba(0,0,0,0.2);
+            outline-offset: 1px;
+        }
+
+        .swatch.active { 
+            border-color: #000; 
+            outline: 2px solid #666;
+            outline-offset: 2px;
+        }
+
+        .reveal-container {
+            background: white;
+            height: 100%; 
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border-radius: 6px; 
+        }
+
+        .reveal-btn {
+            background: #E9617B;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 6px; 
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .actual-logo {
+            display: none;
+            max-width: 80%;
+            max-height: 80%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-title">Draw stuff From Memory</div>
+
+    <div id="feed"></div>
+
+    <script>
+        const logos = [
+            { name: "Kasane Teto", bg: "#ffffff", colors: ["#C94158", "#FDEBDC", "#567384", "#ffffff"], img: "./teto.png" },
+            { name: "A Baguette", bg: "#ffffff", colors: ["#F5BD6A", "#DACCB2", "#FA9A66"], img: "./ineed.jpeg" },
+            { name: "Hatsune Miku", bg: "#ffffff", colors: ["#47E4DE", "#F8E1C9", "#C14551", "#343443"], img: "./peeku.png" },
+            { name: "Pearto", bg: "#ffffff", colors: ["#EEEF77", "#F8FAE5", "#AF565E"], img: "./pearto.png" },
+            { name: "Akito Neru", bg: "#ffffff", colors: ["#F4BE31", "#F7D6B4", "#A39B94", "#FFFFF6", "#594B34"], img: "./idkwho.png" },
+        ];
+
+        function createChallenge(data) {
+            const section = document.createElement('div');
+            section.className = 'logo-section';
+            section.innerHTML = `
+                <div class="prompt-bar">Draw ${data.name}</div>
+                <div class="game-grid">
+                    <div class="canvas-container">
+                        <canvas class="drawing-surface" width="500" height="500" style="background:${data.bg}"></canvas>
+                        <div class="palette"></div>
+                    </div>
+                    <div class="reveal-container" style="background:${data.bg}">
+                        <button class="reveal-btn">Reveal</button>
+                        <img class="actual-logo" src="${data.img}">
+                    </div>
+                </div>
+            `;
+
+            const canvas = section.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+            const palette = section.querySelector('.palette');
+            const revealBtn = section.querySelector('.reveal-btn');
+            const actualLogo = section.querySelector('.actual-logo');
+
+            let drawing = false;
+            let currentColor = data.colors[0];
+
+            data.colors.forEach((c, i) => {
+                const s = document.createElement('div');
+                s.className = `swatch ${i===0?'active':''}`;
+                s.style.backgroundColor = c;
+                s.onclick = () => {
+                    section.querySelectorAll('.swatch').forEach(sw => sw.classList.remove('active'));
+                    s.classList.add('active');
+                    currentColor = c;
+                };
+                palette.appendChild(s);
+            });
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function startPosition(e) {
+                drawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function endPosition() {
+                drawing = false;
+            }
+
+            function draw(e) {
+                if (!drawing) return;
+                e.preventDefault(); 
+                const pos = getPos(e);
+                
+                ctx.lineWidth = 12;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = currentColor;
+                
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            canvas.addEventListener('mousedown', startPosition);
+            window.addEventListener('mouseup', endPosition);
+            canvas.addEventListener('mousemove', draw);
+
+            canvas.addEventListener('touchstart', startPosition, { passive: false });
+            window.addEventListener('touchend', endPosition);
+            window.addEventListener('touchcancel', endPosition);
+            canvas.addEventListener('touchmove', draw, { passive: false });
+
+            revealBtn.onclick = () => {
+                revealBtn.style.display = 'none';
+                actualLogo.style.display = 'block';
+            };
+
+            return section;
+        }
+
+        const feed = document.getElementById('feed');
+        logos.forEach(logo => feed.appendChild(createChallenge(logo)));
+    </script>
+
+</body>
+</html>
