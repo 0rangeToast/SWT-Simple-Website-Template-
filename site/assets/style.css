@@ -23,6 +23,8 @@ body{
 .song-pages, .image-pages{display:none;}
 .song-pages.active, .image-pages.active{display:block;}
 
+#games-tab-button { display: none; }
+
 .image-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
