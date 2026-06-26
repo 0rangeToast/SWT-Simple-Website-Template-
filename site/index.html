@@ -237,12 +237,18 @@
         <script>
         function wip_hide_games_tab() {
         var x = document.getElementById("games-tab-button");
+        if (x.style.display == "none") {
+        console.log('The "Games" tab is already hidden.')
+        } else {
         x.style.display = "none";
-        }
+        }}
         function wip_show_games_tab() {
         var x = document.getElementById("games-tab-button");
+        if (x.style.display == "flex") {
+        console.log('The "Games" tab is already unhidden.')
+        } else {
         x.style.display = "flex";
-        }
+        }}
         </script>
 </body>
 </html>
